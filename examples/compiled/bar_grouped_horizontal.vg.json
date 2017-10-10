@@ -186,6 +186,7 @@
                     "title": "population",
                     "scale": "x",
                     "orient": "bottom",
+                    "labelFlush": true,
                     "labelOverlap": true,
                     "tickCount": {
                         "signal": "ceil(child_width/40)"

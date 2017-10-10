@@ -314,6 +314,7 @@
                 {
                     "scale": "concat_0_x",
                     "orient": "bottom",
+                    "labelFlush": true,
                     "labelOverlap": true,
                     "tickCount": {
                         "signal": "min(ceil(concat_0_width/40), 10)"

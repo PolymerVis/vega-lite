@@ -487,6 +487,7 @@
                 {
                     "scale": "child_distance_x",
                     "orient": "bottom",
+                    "labelFlush": true,
                     "labelOverlap": true,
                     "tickCount": {
                         "signal": "min(ceil(width/40), 20)"
@@ -668,6 +669,7 @@
                 {
                     "scale": "child_delay_x",
                     "orient": "bottom",
+                    "labelFlush": true,
                     "labelOverlap": true,
                     "tickCount": {
                         "signal": "min(ceil(width/40), 20)"
@@ -849,6 +851,7 @@
                 {
                     "scale": "child_time_x",
                     "orient": "bottom",
+                    "labelFlush": true,
                     "labelOverlap": true,
                     "tickCount": {
                         "signal": "min(ceil(width/40), 20)"
