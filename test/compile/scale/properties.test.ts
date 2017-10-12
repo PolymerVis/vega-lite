@@ -31,8 +31,16 @@ describe('compile/scale', () => {
   describe('padding', () => {
     it('should be pointPadding for point scale if channel is x or y and padding is not specified.', () => {
       for (const c of ['x', 'y'] as Channel[]) {
-        assert.equal(rules.padding(c, 'point', {pointPadding: 13}), 13);
+        assert.equal(rules.padding(c, 'point', {pointPadding: 13}, undefined, undefined), 13);
       }
+    });
+
+    it('should be continuousBandSize for linear x-scale of vertical bar.', () => {
+      assert.equal(rules.padding('x', 'linear', {}, {type: 'bar', orient: 'vertical'}, {continuousBandSize: 13}), 13);
+    });
+
+    it('should be continuousBandSize for linear x-scale of vertical bar.', () => {
+      assert.equal(rules.padding('y', 'linear', {}, {type: 'bar', orient: 'horizontal'}, {continuousBandSize: 13}), 13);
     });
   });
 

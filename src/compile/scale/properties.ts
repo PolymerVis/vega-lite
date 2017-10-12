@@ -1,6 +1,7 @@
 import {Channel, ScaleChannel, X, Y} from '../../channel';
 import {FieldDef} from '../../fielddef';
 import * as log from '../../log';
+import {MarkDef, BarConfig} from '../../mark';
 import {channelScalePropertyIncompatability, Domain, hasContinuousDomain, isContinuousToContinuous, NiceTime, Scale, ScaleConfig, ScaleType, scaleTypeSupportProperty} from '../../scale';
 import {SortField, SortOrder} from '../../sort';
 import * as util from '../../util';
@@ -11,6 +12,7 @@ import {Explicit, mergeValuesWithExplicit, tieBreakByComparing} from '../split';
 import {UnitModel} from '../unit';
 import {ScaleComponent, ScaleComponentIndex, ScaleComponentProps} from './component';
 import {parseScaleRange} from './range';
+import {Config} from '../../config';
 
 
 export function parseScaleProperty(model: Model, property: keyof (Scale | ScaleComponentProps)) {
@@ -56,7 +58,9 @@ function parseUnitScaleProperty(model: UnitModel, property: keyof (Scale | Scale
           mergedScaleCmpt.get('type'),
           mergedScaleCmpt.get('padding'),
           mergedScaleCmpt.get('paddingInner'),
-          specifiedScale.domain,  config.scale);
+          specifiedScale.domain,
+          model.markDef, config
+        );
         if (value !== undefined) {
           localScaleCmpt.set(property, value, false);
         }
@@ -69,14 +73,15 @@ function parseUnitScaleProperty(model: UnitModel, property: keyof (Scale | Scale
 export function getDefaultValue(
   property: keyof Scale, channel: Channel, fieldDef: FieldDef<string>, sort: SortOrder | SortField<string>,
   scaleType: ScaleType, scalePadding: number, scalePaddingInner: number,
-  specifiedDomain: Scale['domain'], scaleConfig: ScaleConfig) {
+  specifiedDomain: Scale['domain'], markDef: MarkDef, config: Config) {
+  const scaleConfig = config.scale;
 
   // If we have default rule-base, determine default value first
   switch (property) {
     case 'nice':
       return nice(scaleType, channel, fieldDef);
     case 'padding':
-      return padding(channel, scaleType, scaleConfig);
+      return padding(channel, scaleType, scaleConfig, markDef, config.bar);
     case 'paddingInner':
       return paddingInner(scalePadding, channel, scaleConfig);
     case 'paddingOuter':
@@ -138,13 +143,22 @@ export function nice(scaleType: ScaleType, channel: Channel, fieldDef: FieldDef<
   return util.contains([X, Y], channel); // return true for quantitative X/Y unless binned
 }
 
-export function padding(channel: Channel, scaleType: ScaleType, scaleConfig: ScaleConfig) {
+export function padding(channel: Channel, scaleType: ScaleType, scaleConfig: ScaleConfig, markDef: MarkDef, barConfig: BarConfig) {
   if (util.contains([X, Y], channel)) {
     if (isContinuousToContinuous(scaleType)) {
       if (scaleConfig.continuousPadding !== undefined) {
         return scaleConfig.continuousPadding;
       }
-      // TODO: better default rule for bar
+
+      const {type, orient} = markDef;
+      if (type === 'bar') {
+        if (
+          (orient === 'vertical' && channel === 'x') ||
+          (orient === 'horizontal' && channel === 'y')
+        ) {
+          return barConfig.continuousBandSize;
+        }
+      }
     }
 
     if (scaleType === ScaleType.POINT) {
